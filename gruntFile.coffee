@@ -49,6 +49,7 @@ module.exports = (grunt) ->
         app: ["src/app/**/*.tpl.html"]
         common: ["src/common/**/*.tpl.html"]
       sass: ["src/sass/stylesheet.sass"]
+      sassWatch: ["src/sass/**/*.sass"]
 
     clean: ["<%= distdir %>/*"]
     copy:
@@ -170,13 +171,13 @@ module.exports = (grunt) ->
 
     watch:
       all:
-        files: ["<%= src.js %>", "<%= src.specs %>", "<%= src.sass %>", "<%= src.tpl.app %>", "<%= src.tpl.common %>", "<%= src.html %>"]
+        files: ["<%= src.js %>", "<%= src.specs %>", "<%= src.sassWatch %>", "<%= src.tpl.app %>", "<%= src.tpl.common %>", "<%= src.html %>", "<%= src.coffee %>"]
         tasks: ["default", "timestamp"]
         options:
           livereload: true
 
       build:
-        files: ["<%= src.js %>", "<%= src.specs %>", "<%= src.sass %>", "<%= src.tpl.app %>", "<%= src.tpl.common %>", "<%= src.html %>"]
+        files: ["<%= src.js %>", "<%= src.specs %>", "<%= src.sassWatch %>", "<%= src.tpl.app %>", "<%= src.tpl.common %>", "<%= src.html %>", "<%= src.coffee %>"]
         tasks: ["build", "timestamp"]
         options:
           livereload: true

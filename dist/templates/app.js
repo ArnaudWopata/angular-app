@@ -10,6 +10,6 @@ angular.module("dashboard/dashboard.tpl.html", []).run(["$templateCache", functi
 angular.module("hourly/hourly.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("hourly/hourly.tpl.html",
     "<h4>Hourly asked questions</h4>\n" +
-    "<hourly-graph val='stats'></hourly-graph>\n" +
+    "<hourly-graph values='stats'></hourly-graph>\n" +
     "");
 }]);
