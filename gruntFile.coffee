@@ -12,8 +12,8 @@ module.exports = (grunt) ->
 
   # Default task.
   grunt.registerTask "default", ["jshint", "build", "karma:unit"]
-  grunt.registerTask "build", ["clean", "html2js", "coffee", "concat", "sass:build", "copy"]
-  grunt.registerTask "release", ["clean", "html2js", "coffee", "uglify", "jshint", "karma:unit", "concat:index", "sass:min", "copy"]
+  grunt.registerTask "build", ["clean:pre", "html2js", "coffee", "sass:build", "concat", "copy", "clean:post"]
+  grunt.registerTask "release", ["clean:pre", "html2js", "coffee", "sass:min", "uglify", "jshint", "karma:unit", "concat:css", "concat:index", "copy", "clean:post"]
   grunt.registerTask "test-watch", ["karma:watch"]
 
   # Print a timestamp (useful for when watching)
@@ -39,6 +39,7 @@ module.exports = (grunt) ->
     banner: "/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today(\"yyyy-mm-dd\") %>\n" + "<%= pkg.homepage ? \" * \" + pkg.homepage + \"\\n\" : \"\" %>" + " * Copyright (c) <%= grunt.template.today(\"yyyy\") %> <%= pkg.author %>;\n" + " * Licensed <%= _.pluck(pkg.licenses, \"type\").join(\", \") %>\n */\n"
     src:
       js: ["src/**/*.js"]
+      css: ["src/**/*.css", "vendor/**/*.css"]
       coffee: ["src/**/*.coffee"]
       coffeeDist: ["<%= distdir %>/coffee.js"]
       jsTpl: ["<%= distdir %>/templates/**/*.js"]
@@ -49,9 +50,13 @@ module.exports = (grunt) ->
         app: ["src/app/**/*.tpl.html"]
         common: ["src/common/**/*.tpl.html"]
       sass: ["src/sass/stylesheet.sass"]
+      sassDist: ["<%= distdir %>/sass"]
       sassWatch: ["src/sass/**/*.sass"]
 
-    clean: ["<%= distdir %>/*"]
+    clean:
+      pre: ["<%= distdir %>/*"]
+      post: ["<%= src.coffeeDist %>", "<%= distdir %>/templates", "<%= src.sassDist %>.css"]
+
     copy:
       assets:
         files: [
@@ -109,6 +114,10 @@ module.exports = (grunt) ->
         src: ["<%= src.js %>", "<%= src.coffeeDist %>", "<%= src.jsTpl %>"]
         dest: "<%= distdir %>/<%= pkg.name %>.js"
 
+      css:
+        src: ["<%= src.css %>", "<%= src.sassDist %>.css"]
+        dest: "<%= distdir %>/<%= pkg.name %>.css"
+
       index:
         src: ["src/index.html"]
         dest: "<%= distdir %>/index.html"
@@ -158,7 +167,7 @@ module.exports = (grunt) ->
     sass:
       build:
         files:
-          "<%= distdir %>/<%= pkg.name %>.css": ["<%= src.sass %>"]
+          "<%= src.sassDist %>.css": ["<%= src.sass %>"]
         options:
           style: 'expanded'
 
