@@ -3,61 +3,6 @@
  * Copyright (c) 2013 Arnaud Rinquin;
  * Licensed MIT
  */
-angular.module('app', [
-  'ngRoute',
-  'restangular',
-  'dashboard',
-  'hourly',
-  'directives.hourlyGraph',
-  'templates.app',
-  'templates.common']);
-
-//TODO: move those messages to a separate module
-angular.module('app').constant('I18N.MESSAGES', {
-  'errors.route.changeError':'Route change error'
-});
-
-// angular.module('app').config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
-//   $locationProvider.html5Mode(true);
-// }]);
-
-angular.module('app').controller('AppCtrl', ['$scope', function($scope) {
-  $scope.$on('$routeChangeError', function(event, current, previous, rejection){
-    console.log('errors.route.changeError', 'error', {}, {rejection: rejection});
-  });
-}]);
-
-angular.module('dashboard', [])
-
-.config(['$routeProvider', function ($routeProvider) {
-  $routeProvider.when('/', {
-    templateUrl:'dashboard/dashboard.tpl.html',
-    controller:'DashboardCtrl'
-  });
-}])
-
-.controller('DashboardCtrl', ['$scope', '$location', function ($scope, $location) {
-}]);
-
-angular.module('hourly', ['restangular'])
-
-.config(['$routeProvider', function ($routeProvider) {
-  $routeProvider.when('/hourly', {
-    templateUrl:'hourly/hourly.tpl.html',
-    controller:'HourlyCtrl',
-    resolve: {
-      stats: ['Restangular', function(Restangular){
-        return Restangular.one('stats', 'hourly').get();
-      }]
-    }
-  });
-}])
-
-.controller('HourlyCtrl', ['$scope', '$location', 'stats', function ($scope, $location, stats) {
-  $scope.stats = stats;
-}]);
-
-
 angular.module('directives.gravatar', [])
 
 // A simple directive to display a gravatar image given an email
@@ -302,16 +247,6 @@ angular.module('directives.gravatar', [])
 
   return md5;
 });
-angular.module('resources.stats', ['restangular']);
-angular.module('resources.stats').factory('Stats', ['Restangular', function (Restangular) {
-  return {
-    all: Restangular.all('stats').getList(),
-    one: function(id){
-      Restangular.one('stats', id).get();
-    }
-  };
-}]);
-
 angular.module('services.localizedMessages', []).factory('localizedMessages', ['$interpolate', 'I18N.MESSAGES', function ($interpolate, i18nmessages) {
 
   var handleNotFound = function (msg, msgKey) {
@@ -329,6 +264,67 @@ angular.module('services.localizedMessages', []).factory('localizedMessages', ['
     }
   };
 }]);
+angular.module("app", ["ngRoute", "restangular", "dashboard", "hourly", "yearly", "directives.hourlyGraph", "templates.app", "templates.common"]);
+
+angular.module("app").controller("AppCtrl", [
+  "$scope", function($scope) {
+    return $scope.$on("$routeChangeError", function(event, current, previous, rejection) {
+      return console.log("errors.route.changeError", "error", {}, {
+        rejection: rejection
+      });
+    });
+  }
+]);
+
+angular.module("dashboard", []).config([
+  "$routeProvider", function($routeProvider) {
+    return $routeProvider.when("/", {
+      templateUrl: "dashboard/dashboard.tpl.html",
+      controller: "DashboardCtrl"
+    });
+  }
+]).controller("DashboardCtrl", ["$scope", "$location", function($scope, $location) {}]);
+
+angular.module('hourly', ['restangular']).config([
+  '$routeProvider', function($routeProvider) {
+    return $routeProvider.when('/hourly', {
+      templateUrl: 'hourly/hourly.tpl.html',
+      controller: 'HourlyCtrl',
+      resolve: {
+        stats: [
+          'Restangular', function(Restangular) {
+            return Restangular.one('stats', 'hourly').get();
+          }
+        ]
+      }
+    });
+  }
+]).controller('HourlyCtrl', [
+  '$scope', 'stats', function($scope, stats) {
+    return $scope.stats = stats;
+  }
+]);
+
+angular.module('yearly', ['restangular']).config([
+  '$routeProvider', function($routeProvider) {
+    return $routeProvider.when('/yearly', {
+      templateUrl: 'yearly/yearly.tpl.html',
+      controller: 'YearlyCtrl',
+      resolve: {
+        stats: [
+          'Restangular', function(Restangular) {
+            return Restangular.one('stats', 'yearly').get();
+          }
+        ]
+      }
+    });
+  }
+]).controller('YearlyCtrl', [
+  '$scope', 'stats', function($scope, stats) {
+    return $scope.stats = stats;
+  }
+]);
+
 angular.module("directives.hourlyGraph", []).directive("hourlyGraph", function() {
   var buckets, colors, days, gridSize, height, legendElementWidth, margin, times, width;
   margin = {
@@ -402,12 +398,13 @@ angular.module("directives.hourlyGraph", []).directive("hourlyGraph", function()
   };
 });
 
-angular.module('templates.app', ['dashboard/dashboard.tpl.html', 'hourly/hourly.tpl.html']);
+angular.module('templates.app', ['dashboard/dashboard.tpl.html', 'hourly/hourly.tpl.html', 'yearly/yearly.tpl.html']);
 
 angular.module("dashboard/dashboard.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("dashboard/dashboard.tpl.html",
     "<h4>Dashboard</h4>\n" +
     "<a href=\"/#hourly\">Hourly asked questions</a>\n" +
+    "<a href=\"/#yearly\">Yearly asked questions per service</a>\n" +
     "");
 }]);
 
@@ -415,6 +412,12 @@ angular.module("hourly/hourly.tpl.html", []).run(["$templateCache", function($te
   $templateCache.put("hourly/hourly.tpl.html",
     "<h4>Hourly asked questions</h4>\n" +
     "<hourly-graph values='stats'></hourly-graph>\n" +
+    "");
+}]);
+
+angular.module("yearly/yearly.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("yearly/yearly.tpl.html",
+    "<h4>Yearly asked questions per service</h4>\n" +
     "");
 }]);
 

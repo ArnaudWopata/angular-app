@@ -1,3 +1,64 @@
+angular.module("app", ["ngRoute", "restangular", "dashboard", "hourly", "yearly", "directives.hourlyGraph", "templates.app", "templates.common"]);
+
+angular.module("app").controller("AppCtrl", [
+  "$scope", function($scope) {
+    return $scope.$on("$routeChangeError", function(event, current, previous, rejection) {
+      return console.log("errors.route.changeError", "error", {}, {
+        rejection: rejection
+      });
+    });
+  }
+]);
+
+angular.module("dashboard", []).config([
+  "$routeProvider", function($routeProvider) {
+    return $routeProvider.when("/", {
+      templateUrl: "dashboard/dashboard.tpl.html",
+      controller: "DashboardCtrl"
+    });
+  }
+]).controller("DashboardCtrl", ["$scope", "$location", function($scope, $location) {}]);
+
+angular.module('hourly', ['restangular']).config([
+  '$routeProvider', function($routeProvider) {
+    return $routeProvider.when('/hourly', {
+      templateUrl: 'hourly/hourly.tpl.html',
+      controller: 'HourlyCtrl',
+      resolve: {
+        stats: [
+          'Restangular', function(Restangular) {
+            return Restangular.one('stats', 'hourly').get();
+          }
+        ]
+      }
+    });
+  }
+]).controller('HourlyCtrl', [
+  '$scope', 'stats', function($scope, stats) {
+    return $scope.stats = stats;
+  }
+]);
+
+angular.module('yearly', ['restangular']).config([
+  '$routeProvider', function($routeProvider) {
+    return $routeProvider.when('/yearly', {
+      templateUrl: 'yearly/yearly.tpl.html',
+      controller: 'YearlyCtrl',
+      resolve: {
+        stats: [
+          'Restangular', function(Restangular) {
+            return Restangular.one('stats', 'yearly').get();
+          }
+        ]
+      }
+    });
+  }
+]).controller('YearlyCtrl', [
+  '$scope', 'stats', function($scope, stats) {
+    return $scope.stats = stats;
+  }
+]);
+
 angular.module("directives.hourlyGraph", []).directive("hourlyGraph", function() {
   var buckets, colors, days, gridSize, height, legendElementWidth, margin, times, width;
   margin = {
