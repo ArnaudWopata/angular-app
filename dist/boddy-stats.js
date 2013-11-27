@@ -264,7 +264,7 @@ angular.module('services.localizedMessages', []).factory('localizedMessages', ['
     }
   };
 }]);
-angular.module("app", ["ngRoute", "restangular", "dashboard", "hourly", "yearly", "directives.hourlyGraph", "templates.app", "templates.common"]);
+angular.module("app", ["ngRoute", "restangular", "dashboard", "hourly", "yearly", "directives.hourlyGraph", "directives.yearlyGraph", "templates.app", "templates.common"]);
 
 angular.module("app").controller("AppCtrl", [
   "$scope", function($scope) {
@@ -398,6 +398,37 @@ angular.module("directives.hourlyGraph", []).directive("hourlyGraph", function()
   };
 });
 
+angular.module("directives.yearlyGraph", []).directive("yearlyGraph", function() {
+  var height, width;
+  height = 500;
+  width = '100%';
+  return {
+    restrict: "E",
+    scope: {
+      values: "="
+    },
+    link: function(scope, element, attrs) {
+      return scope.$watch('values', function(data) {
+        return nv.addGraph(function() {
+          var chart;
+          chart = nv.models.stackedAreaChart().x(function(d) {
+            return d[0];
+          }).y(function(d) {
+            return d[1];
+          }).clipEdge(true);
+          chart.xAxis.tickFormat(function(d) {
+            console.log(d);
+            return d3.time.format("%Y")(new Date(d, 0));
+          });
+          chart.yAxis.tickFormat(d3.format("f"));
+          d3.select(element[0]).append('svg').attr("width", width).attr("height", height).datum(data).transition().duration(500).call(chart);
+          return nv.utils.windowResize(chart.update);
+        });
+      });
+    }
+  };
+});
+
 angular.module('templates.app', ['dashboard/dashboard.tpl.html', 'hourly/hourly.tpl.html', 'yearly/yearly.tpl.html']);
 
 angular.module("dashboard/dashboard.tpl.html", []).run(["$templateCache", function($templateCache) {
@@ -418,6 +449,7 @@ angular.module("hourly/hourly.tpl.html", []).run(["$templateCache", function($te
 angular.module("yearly/yearly.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("yearly/yearly.tpl.html",
     "<h4>Yearly asked questions per service</h4>\n" +
+    "<yearly-graph values='stats'></yearly-graph>\n" +
     "");
 }]);
 
