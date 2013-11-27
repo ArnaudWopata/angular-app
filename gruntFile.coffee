@@ -2,6 +2,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-concat"
   grunt.loadNpmTasks "grunt-contrib-jshint"
   grunt.loadNpmTasks "grunt-contrib-uglify"
+  grunt.loadNpmTasks "grunt-contrib-coffee"
   grunt.loadNpmTasks "grunt-contrib-clean"
   grunt.loadNpmTasks "grunt-contrib-copy"
   grunt.loadNpmTasks "grunt-contrib-watch"
@@ -11,8 +12,8 @@ module.exports = (grunt) ->
 
   # Default task.
   grunt.registerTask "default", ["jshint", "build", "karma:unit"]
-  grunt.registerTask "build", ["clean", "html2js", "concat", "sass:build", "copy:assets"]
-  grunt.registerTask "release", ["clean", "html2js", "uglify", "jshint", "karma:unit", "concat:index", "sass:min", "copy:assets"]
+  grunt.registerTask "build", ["clean", "html2js", "coffee", "concat", "sass:build", "copy"]
+  grunt.registerTask "release", ["clean", "html2js", "coffee", "uglify", "jshint", "karma:unit", "concat:index", "sass:min", "copy"]
   grunt.registerTask "test-watch", ["karma:watch"]
 
   # Print a timestamp (useful for when watching)
@@ -38,6 +39,8 @@ module.exports = (grunt) ->
     banner: "/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today(\"yyyy-mm-dd\") %>\n" + "<%= pkg.homepage ? \" * \" + pkg.homepage + \"\\n\" : \"\" %>" + " * Copyright (c) <%= grunt.template.today(\"yyyy\") %> <%= pkg.author %>;\n" + " * Licensed <%= _.pluck(pkg.licenses, \"type\").join(\", \") %>\n */\n"
     src:
       js: ["src/**/*.js"]
+      coffee: ["src/**/*.coffee"]
+      coffeeDist: ["<%= distdir %>/coffee.js"]
       jsTpl: ["<%= distdir %>/templates/**/*.js"]
       specs: ["test/**/*.spec.js"]
       scenarios: ["test/**/*.scenario.js"]
@@ -56,6 +59,13 @@ module.exports = (grunt) ->
           expand: true
           cwd: "src/assets/"
         ]
+      stats:
+        files: [
+          dest: "<%= distdir %>/stats"
+          src: "**"
+          expand: true
+          cwd: "src/stats/"
+        ]
 
     karma:
       unit:
@@ -66,6 +76,12 @@ module.exports = (grunt) ->
           singleRun: false
           autoWatch: true
         )
+    coffee:
+      dist:
+        files:
+          "<%= distdir %>/coffee.js": "<%= src.coffee %>"
+        options:
+          bare: true
 
     html2js:
       app:
@@ -89,7 +105,7 @@ module.exports = (grunt) ->
         options:
           banner: "<%= banner %>"
 
-        src: ["<%= src.js %>", "<%= src.jsTpl %>"]
+        src: ["<%= src.js %>", "<%= src.coffeeDist %>", "<%= src.jsTpl %>"]
         dest: "<%= distdir %>/<%= pkg.name %>.js"
 
       index:
@@ -99,19 +115,27 @@ module.exports = (grunt) ->
           process: true
 
       angular:
-        src: ["vendor/angular/angular.js", "vendor/angular/angular-route.js"]
+        src: ["vendor/angular/angular.js", "vendor/angular/angular-route.js", "vendor/angular/restangular.js"]
         dest: "<%= distdir %>/angular.js"
 
       jquery:
         src: ["vendor/jquery/*.js"]
         dest: "<%= distdir %>/jquery.js"
 
+      d3:
+        src: ["vendor/d3/*.js"]
+        dest: "<%= distdir %>/d3.js"
+
+      lodash:
+        src: ["vendor/lodash/*.js"]
+        dest: "<%= distdir %>/lodash.js"
+
     uglify:
       dist:
         options:
           banner: "<%= banner %>"
 
-        src: ["<%= src.js %>", "<%= src.jsTpl %>"]
+        src: ["<%= src.js %>", "<%= src.coffeeDist %>", "<%= src.jsTpl %>"]
         dest: "<%= distdir %>/<%= pkg.name %>.js"
 
       angular:
@@ -121,6 +145,14 @@ module.exports = (grunt) ->
       jquery:
         src: ["vendor/jquery/*.js"]
         dest: "<%= distdir %>/jquery.js"
+
+      d3:
+        src: ["vendor/d3/*.js"]
+        dest: "<%= distdir %>/d3.js"
+
+      lodash:
+        src: ["vendor/lodash/*.js"]
+        dest: "<%= distdir %>/lodash.js"
 
     sass:
       build:
