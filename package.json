@@ -1,19 +1,19 @@
 {
-  "author": "Pawel Kozlowski & Peter Bacon Darwin",
-  "name": "angular-app",
-  "homepage": "https://github.com/angular-app/angular-app",
+  "author": "Arnaud Rinquin",
+  "name": "boddy-stats",
+  "homepage": "https://github.com/ArnaudRinquin/boddy-stats",
   "version": "0.0.1-SNAPSHOT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:angular-app/angular-app.git"
+    "url": "git@github.com:ArnaudRinquin/boddy-stats.git"
   },
   "bugs": {
-    "url": "https://github.com/angular-app/angular-app/issues"
+    "url": "https://github.com/ArnaudRinquin/boddy-stats/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://raw.github.com/angular-app/angular-app/master/LICENSE"
+      "url": "https://raw.github.com/ArnaudRinquin/boddy-stats/master/LICENSE"
     }
   ],
   "engines": {
