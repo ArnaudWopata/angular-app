@@ -6,7 +6,7 @@ angular.module('yearly', ['restangular'])
     controller: 'YearlyCtrl'
     resolve:
       stats: ['Restangular', (Restangular)->
-        Restangular.one('stats', 'yearly').get()
+        Restangular.one('queries', 'on_a_year.json').get()
       ]
   }
 ])

@@ -276,6 +276,13 @@ angular.module("app").controller("AppCtrl", [
   }
 ]);
 
+angular.module('app').config([
+  '$sceDelegateProvider', 'RestangularProvider', function($sceDelegateProvider, RestangularProvider) {
+    $sceDelegateProvider.resourceUrlWhitelist(['self', '/^http:\/\/192.168.1.72:3000/']);
+    return RestangularProvider.setBaseUrl('http://192.168.1.72:3000/');
+  }
+]);
+
 angular.module("dashboard", []).config([
   "$routeProvider", function($routeProvider) {
     return $routeProvider.when("/", {
@@ -293,7 +300,7 @@ angular.module('hourly', ['restangular']).config([
       resolve: {
         stats: [
           'Restangular', function(Restangular) {
-            return Restangular.one('stats', 'hourly').get();
+            return Restangular.one('queries', 'on_a_week.json').get();
           }
         ]
       }
@@ -313,7 +320,7 @@ angular.module('yearly', ['restangular']).config([
       resolve: {
         stats: [
           'Restangular', function(Restangular) {
-            return Restangular.one('stats', 'yearly').get();
+            return Restangular.one('queries', 'on_a_year.json').get();
           }
         ]
       }
@@ -400,7 +407,7 @@ angular.module("directives.hourlyGraph", []).directive("hourlyGraph", function()
 
 angular.module("directives.yearlyGraph", []).directive("yearlyGraph", function() {
   var height, width;
-  height = 500;
+  height = 2000;
   width = '100%';
   return {
     restrict: "E",
@@ -409,16 +416,21 @@ angular.module("directives.yearlyGraph", []).directive("yearlyGraph", function()
     },
     link: function(scope, element, attrs) {
       return scope.$watch('values', function(data) {
+        data.forEach(function(serie) {
+          console.log(serie.key, serie.values.length);
+          return serie.values = serie.values.sort(function(a, b) {
+            return a.doy - b.doy;
+          });
+        });
         return nv.addGraph(function() {
           var chart;
           chart = nv.models.stackedAreaChart().x(function(d) {
-            return d[0];
+            return parseInt(d.doy);
           }).y(function(d) {
-            return d[1];
+            return parseInt(d.value);
           }).clipEdge(true);
           chart.xAxis.tickFormat(function(d) {
-            console.log(d);
-            return d3.time.format("%Y")(new Date(d, 0));
+            return d;
           });
           chart.yAxis.tickFormat(d3.format("f"));
           d3.select(element[0]).append('svg').attr("width", width).attr("height", height).datum(data).transition().duration(500).call(chart);

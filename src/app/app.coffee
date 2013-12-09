@@ -19,3 +19,8 @@ angular.module("app").controller "AppCtrl", ["$scope", ($scope) ->
     console.log "errors.route.changeError", "error", {},
       rejection: rejection
 ]
+
+angular.module('app').config(['$sceDelegateProvider', 'RestangularProvider', ($sceDelegateProvider, RestangularProvider)->
+    $sceDelegateProvider.resourceUrlWhitelist ['self', '/^http:\/\/192.168.1.72:3000/']
+    RestangularProvider.setBaseUrl 'http://192.168.1.72:3000/'
+])

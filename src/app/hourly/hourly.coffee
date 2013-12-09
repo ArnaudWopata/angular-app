@@ -6,7 +6,7 @@ angular.module('hourly', ['restangular'])
     controller: 'HourlyCtrl'
     resolve:
       stats: ['Restangular', (Restangular)->
-        Restangular.one('stats', 'hourly').get()
+        Restangular.one('queries', 'on_a_week.json').get()
       ]
   }
 ])

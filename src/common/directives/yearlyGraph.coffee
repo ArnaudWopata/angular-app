@@ -2,7 +2,7 @@ angular.module("directives.yearlyGraph", [])
 
 .directive "yearlyGraph", ->
 
-  height = 500
+  height = 2000
   width = '100%'
 
   {
@@ -14,15 +14,21 @@ angular.module("directives.yearlyGraph", [])
 
       scope.$watch 'values', (data)->
 
+        # sort the data
+        data.forEach (serie)->
+          console.log serie.key, serie.values.length
+          serie.values = serie.values.sort (a, b)->
+            a.doy - b.doy
+
+
         nv.addGraph ->
           chart = nv.models.stackedAreaChart()
-            .x((d) -> d[0])
-            .y((d) -> d[1])
+            .x((d) -> parseInt(d.doy))
+            .y((d) -> parseInt(d.value))
             .clipEdge(true)
 
-          chart.xAxis.tickFormat (d) ->
-            console.log d
-            d3.time.format("%Y") new Date(d, 0 )
+          chart.xAxis.tickFormat (d) -> d
+          # d3.time.format("%Y") new Date(d, 0 )
 
           chart.yAxis.tickFormat d3.format("f")
 
